@@ -3,15 +3,13 @@ name: Build and deploy to GitHub Pages
 on:
   push:
     branches: [main]
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2.3.1
-
-      - name: Setup SSH Key 🔐
-        uses: webfactory/ssh-agent@v0.5.3 
 
       - name: Install and build 🔧
         run: |
