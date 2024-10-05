@@ -37,6 +37,9 @@ export default defineConfig(({ command }) => {
       outDir: '../dist',
       emptyOutDir: true,
     },
+    optimizeDeps: {
+      include: ['simplelightbox'] // Додано optimizeDeps для включення SimpleLightbox
+    },
     plugins: [
       injectHTML(),
       FullReload(['./src/**/**.html']),
@@ -46,3 +49,4 @@ export default defineConfig(({ command }) => {
     ],
   };
 });
+
