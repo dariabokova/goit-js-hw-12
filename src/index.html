@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css"
+    />
+    <title>Image Search App</title>
+  </head>
+  <body>
+    <form class="search-form">
+      <input type="text" name="query" placeholder="Search images..." required />
+      <button type="submit">Search</button>
+    </form>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HW 10</title>
+    <div class="loader" style="display: none"></div>
 
-  <link rel="stylesheet" href="./css/styles.css" />
-</head>
+    <ul class="gallery"></ul>
 
-<body>
-  <a href="./1-timer.html" class="nav-btn">Timer</a>
-  <a href="./2-snackbar.html" class="nav-btn">Snackbar</a>
-</body>
-
+    <script type="module" src="./main.js"></script>
+  </body>
 </html>
