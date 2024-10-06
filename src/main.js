@@ -1,140 +1,126 @@
-// import { fetchImages } from './js/pixabay-api.js';
-// import {
-//   renderImages,
-//   showLoader,
-//   hideLoader,
-//   showError,
-// } from './js/render-functions.js';
-// import SimpleLightbox from 'simplelightbox';
-// import 'simplelightbox/dist/simple-lightbox.min.css';
+import { fetchImages, PER_PAGE } from './js/pixabay-api.js';
+import { renderImages } from './js/render-functions.js';
+import axios from 'axios';
+import SimpleLightbox from "simplelightbox";
 
-
-
-// const searchForm = document.querySelector('.search-form');
-// const galleryElement = document.querySelector('.gallery');
-// let gallery = new SimpleLightbox('.gallery a');
-
-// searchForm.addEventListener('submit', event => {
-//   event.preventDefault();
-
-//   const query = event.target.elements.query.value.trim();
-//   if (!query) {
-//     showError('Please enter a search query.');
-//     return;
-//   }
-
-//   galleryElement.innerHTML = '';
-
-//   showLoader();
-
-//   fetchImages(query)
-//     .then(images => {
-//       if (images.length === 0) {
-//         showError(
-//           'Sorry, there are no images matching your search query. Please try again!'
-//         );
-//         return;
-//       }
-
-//       renderImages(images);
-//       gallery.refresh();
-//     })
-//     .catch(error => {
-//       showError(`Error fetching images: ${error.message}`);
-//     })
-//     .finally(() => {
-//       hideLoader();
-//     });
-// });
-import { fetchImages } from './js/pixabay-api.js';
-import {
-  renderImages,
-  clearGallery,
-  showLoader,
-  hideLoader,
-  showError,
-  showEndMessage,
-} from './js/render-functions.js';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const searchForm = document.querySelector('.search-form');
-const galleryElement = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('.load-more');
-let gallery = new SimpleLightbox('.gallery a');
+const imagesBoxEl = document.querySelector('.gallery');
+const loadMore = document.querySelector('.js-load-more');
+const messageBox = document.querySelector('.message');
+const loader = document.querySelector('.loader');
+
 let currentPage = 1;
-let currentQuery = '';
-let totalHits = 0;
+let query = null;
+let totalPages = 0;
+let gallery = null;
 
-searchForm.addEventListener('submit', onSearch);
-loadMoreBtn.addEventListener('click', onLoadMore);
 
-async function onSearch(event) {
+searchForm.addEventListener('submit', handleSubmit);
+loadMore.addEventListener('click', handleLoadMore);
+
+async function handleSubmit(event) {
   event.preventDefault();
 
-  currentQuery = event.target.elements.query.value.trim();
-  if (!currentQuery) {
-    showError('Please enter a search query.');
+  const form = event.currentTarget;
+  query = form.elements.query.value.trim();
+
+  if (!query) {
     return;
   }
 
   currentPage = 1;
-  clearGallery();
-  hideLoadMoreButton();
-  await fetchImagesAndRender(currentQuery, currentPage);
-}
+  imagesBoxEl.innerHTML = '';
+  loadMore.classList.add('is-hidden');
 
-async function onLoadMore() {
-  currentPage += 1;
-  await fetchImagesAndRender(currentQuery, currentPage);
-}
-
-async function fetchImagesAndRender(query, page) {
-  showLoader();
   try {
-    const data = await fetchImages(query, page);
-    if (data.hits.length === 0) {
-      showError(
-        'Sorry, there are no images matching your search query. Please try again!'
-      );
-      hideLoadMoreButton();
+    showLoader();
+    const response = await fetchImages(query, currentPage);
+    totalPages = Math.ceil(response.totalHits / PER_PAGE);
+
+    if (response.totalHits === 0) {
+      showMessage("Sorry, there are no images matching your search query. Please try again!");
       return;
     }
 
-    totalHits = data.totalHits;
-    renderImages(data.hits);
-    gallery.refresh();
+    const imagesMarkup = renderImages(response.hits);
+    imagesBoxEl.innerHTML = imagesMarkup;
 
-    if (galleryElement.children.length >= totalHits) {
-      hideLoadMoreButton();
-      showEndMessage();
+    if (!gallery) {
+      gallery = new SimpleLightbox('.gallery a', {
+        captionsData: 'alt',
+        captionDelay: 250,
+      });
     } else {
-      showLoadMoreButton();
+      gallery.refresh();
     }
 
-    scrollPage();
+    if (currentPage < totalPages) {
+      loadMore.classList.remove('is-hidden');
+    }
   } catch (error) {
-    showError(`Error fetching images: ${error.message}`);
+    console.error('Error:', error);
+  } finally {
+    hideLoader();
+    form.reset();
+  }
+}
+
+async function handleLoadMore() {
+  currentPage += 1;
+  try {
+    showLoader();
+    const response = await fetchImages(query, currentPage);
+
+
+    const imagesMarkup = renderImages(response.hits);
+    imagesBoxEl.insertAdjacentHTML('beforeend', imagesMarkup);
+
+
+    gallery.refresh();
+
+    if (currentPage >= totalPages) {
+      loadMore.classList.add('is-hidden');
+      showMessage("We're sorry, but you've reached the end of search results.");
+    }
+
+    handleScrollView();
+
+  } catch (error) {
+    console.error('Error:', error);
   } finally {
     hideLoader();
   }
 }
 
-function showLoadMoreButton() {
-  loadMoreBtn.style.display = 'block';
+function showLoader() {
+  loader.style.display = 'block';
 }
 
-function hideLoadMoreButton() {
-  loadMoreBtn.style.display = 'none';
+function hideLoader() {
+  loader.style.display = 'none';
 }
 
-function scrollPage() {
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
+function showMessage(message) {
+  messageBox.textContent = message;
+  messageBox.classList.remove('is-hidden');
 
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
-  });
+
+  setTimeout(() => {
+    messageBox.classList.add('is-hidden');
+
+  }, 3000);
+}
+function handleScrollView() {
+  const lastArticle = imagesBoxEl.lastElementChild;
+  if (lastArticle) {
+    const articleHeight = lastArticle.getBoundingClientRect().height;
+    window.scrollBy({
+      top: articleHeight * 2,
+      left: 0,
+      behavior: 'smooth',
+    });
+  } else {
+    console.error('Were sorry, but you have reached the end of search results.');
+  }
 }
