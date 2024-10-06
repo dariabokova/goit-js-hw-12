@@ -8,6 +8,8 @@ import {
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
+
+
 const searchForm = document.querySelector('.search-form');
 const galleryElement = document.querySelector('.gallery');
 let gallery = new SimpleLightbox('.gallery a');
