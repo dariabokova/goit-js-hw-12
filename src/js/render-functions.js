@@ -29,21 +29,48 @@ export const renderImages = images => {
     )
     .join('');
 };
+gallery.insertAdjacentHTML('beforeend', markup);
 
-export const showError = message => {
+export function clearGallery() {
+  document.querySelector('.gallery').innerHTML = '';
+}
+
+export function showError(message) {
   iziToast.error({
     title: 'Error',
     message,
   });
-};
+}
 
-export const showLoader = () => {
-  const loader = document.querySelector('.loader');
-  loader.innerHTML = '<div class="spinner"></div>';
-  loader.style.display = 'flex';
-};
+export function showEndMessage() {
+  iziToast.info({
+    title: 'End of Results',
+    message: "We're sorry, but you've reached the end of search results.",
+  });
+}
 
-export const hideLoader = () => {
-  const loader = document.querySelector('.loader');
-  loader.style.display = 'none';
-};
+export function showLoader() {
+  document.querySelector('.loader').style.display = 'flex';
+}
+
+export function hideLoader() {
+  document.querySelector('.loader').style.display = 'none';
+}
+
+// export const showError = message => {
+//   iziToast.error({
+//     title: 'Error',
+//     message,
+//   });
+// };
+
+// export const showLoader = () => {
+//   const loader = document.querySelector('.loader');
+//   loader.innerHTML = '<div class="spinner"></div>';
+//   loader.style.display = 'flex';
+// };
+
+// export const hideLoader = () => {
+//   const loader = document.querySelector('.loader');
+//   loader.style.display = 'none';
+// };
