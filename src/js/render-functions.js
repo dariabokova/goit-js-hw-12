@@ -1,3 +1,6 @@
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
+
 export function renderImages(images) {
   return images.reduce((acc, item) => {
       return (
@@ -16,3 +19,17 @@ export function renderImages(images) {
       );
   }, '');
 }
+
+export function showError(message) {
+    iziToast.error({
+      title: 'Error',
+      message,
+    });
+  }
+  
+  export function showEndMessage() {
+    iziToast.info({
+      title: 'End of Results',
+      message: "Sorry, but you have reached the end of search results.",
+    });
+  }

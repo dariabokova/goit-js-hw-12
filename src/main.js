@@ -1,13 +1,15 @@
 import { fetchImages, PER_PAGE } from './js/pixabay-api.js';
-import { renderImages } from './js/render-functions.js';
-import axios from 'axios';
-import SimpleLightbox from "simplelightbox";
+import { renderImages,
+  showError,
+  showEndMessage,
+ } from './js/render-functions.js';
+ import SimpleLightbox from 'simplelightbox';
+ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 
 const searchForm = document.querySelector('.search-form');
 const imagesBoxEl = document.querySelector('.gallery');
 const loadMore = document.querySelector('.js-load-more');
-const messageBox = document.querySelector('.message');
 const loader = document.querySelector('.loader');
 
 let currentPage = 1;
@@ -39,7 +41,7 @@ async function handleSubmit(event) {
     totalPages = Math.ceil(response.totalHits / PER_PAGE);
 
     if (response.totalHits === 0) {
-      showMessage("Sorry, there are no images matching your search query. Please try again!");
+      showError("Sorry, there are no images matching your search query. Try again!");
       return;
     }
 
@@ -59,6 +61,7 @@ async function handleSubmit(event) {
       loadMore.classList.remove('is-hidden');
     }
   } catch (error) {
+    showError('Sorry, something went wrong.');
     console.error('Error:', error);
   } finally {
     hideLoader();
@@ -81,12 +84,13 @@ async function handleLoadMore() {
 
     if (currentPage >= totalPages) {
       loadMore.classList.add('is-hidden');
-      showMessage("We're sorry, but you've reached the end of search results.");
+      showEndMessage();
     }
 
     handleScrollView();
 
   } catch (error) {
+    showError('Sorry, something went wrong.');
     console.error('Error:', error);
   } finally {
     hideLoader();
@@ -101,16 +105,7 @@ function hideLoader() {
   loader.style.display = 'none';
 }
 
-function showMessage(message) {
-  messageBox.textContent = message;
-  messageBox.classList.remove('is-hidden');
 
-
-  setTimeout(() => {
-    messageBox.classList.add('is-hidden');
-
-  }, 3000);
-}
 function handleScrollView() {
   const lastArticle = imagesBoxEl.lastElementChild;
   if (lastArticle) {
@@ -121,6 +116,7 @@ function handleScrollView() {
       behavior: 'smooth',
     });
   } else {
-    console.error('Were sorry, but you have reached the end of search results.');
+    showError('Sorry, but you have reached the end of search results.');
+    console.error('Sorry, but you have reached the end of search results.');
   }
 }
